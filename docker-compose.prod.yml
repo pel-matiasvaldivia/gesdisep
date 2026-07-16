@@ -1,0 +1,92 @@
+# GESDISEP — despliegue de producción para VPS con Nginx Proxy Manager (NPM).
+#
+# Solo la WEB se expone en un puerto del host; NPM la proxea y provee el SSL.
+# La API y la base de datos quedan internas: el navegador llama a /api en el
+# mismo origen y la web lo reenvía a la API por la red interna de Docker
+# (ver rewrites en apps/web/next.config.mjs).
+#
+# Uso en el VPS:
+#   1) copiar este archivo y .env.prod.example -> .env
+#   2) docker login ghcr.io   (con un PAT de solo lectura de packages)
+#   3) docker compose -f docker-compose.prod.yml pull
+#   4) docker compose -f docker-compose.prod.yml up -d
+#   5) en NPM: Proxy Host -> http://<IP-del-host>:${WEB_PORT}  (o el nombre del
+#      contenedor si NPM comparte la red externa; ver más abajo)
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-gesdisep}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?definí POSTGRES_PASSWORD en .env}
+      POSTGRES_DB: ${POSTGRES_DB:-gesdisep}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gesdisep}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  api:
+    image: ${API_IMAGE:-ghcr.io/pel-matiasvaldivia/gesdisep-api:main}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-gesdisep}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-gesdisep}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?definí JWT_SECRET en .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      CREDENCIAL_QR_SECRET: ${CREDENCIAL_QR_SECRET:?definí CREDENCIAL_QR_SECRET en .env}
+      # URL pública (la que resuelve NPM) usada en el QR de las credenciales.
+      PUBLIC_VERIFY_URL: ${PUBLIC_VERIFY_URL:?definí PUBLIC_VERIFY_URL en .env}
+      # Sembrar usuarios por rol en el primer arranque (poné false luego).
+      SEED_ON_START: ${SEED_ON_START:-false}
+      # Modo de los adaptadores de organismos (real|stub).
+      ADAPTER_RENAPER_MODE: ${ADAPTER_RENAPER_MODE:-stub}
+      ADAPTER_AFIP_MODE: ${ADAPTER_AFIP_MODE:-stub}
+      ADAPTER_ATM_MODE: ${ADAPTER_ATM_MODE:-stub}
+      ADAPTER_DPJ_MODE: ${ADAPTER_DPJ_MODE:-stub}
+      ADAPTER_REINCIDENCIA_MODE: ${ADAPTER_REINCIDENCIA_MODE:-stub}
+    networks: [internal]
+    # Sin 'ports': la API no se expone al host; solo la alcanza la web.
+
+  web:
+    image: ${WEB_IMAGE:-ghcr.io/pel-matiasvaldivia/gesdisep-web:main}
+    restart: unless-stopped
+    depends_on: [api]
+    # El proxy /api -> http://api:3001 va horneado en la imagen (Next evalúa los
+    # rewrites en build). Por eso el servicio de la API debe llamarse "api".
+    environment:
+      PORT: "3000"
+    ports:
+      # Único puerto expuesto. NPM proxea aquí (http) y agrega el SSL.
+      # Se liga a 127.0.0.1 para no publicarlo en la interfaz pública del VPS.
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:3000"
+    networks: [internal]
+
+volumes:
+  db-data:
+
+networks:
+  internal:
+    driver: bridge
+# ── Alternativa: NPM en la misma red de Docker (sin exponer puerto al host) ──
+# Si tu Nginx Proxy Manager corre en Docker y querés que llegue a la web por
+# nombre de contenedor, usá un override. Creá la red que comparte NPM
+# (p. ej. `docker network create npm-net` o la que ya use NPM) y añadí un
+# archivo docker-compose.npm.yml junto a este:
+#
+#   services:
+#     web:
+#       networks: [internal, npmnet]
+#   networks:
+#     npmnet:
+#       external: true
+#       name: npm-net
+#
+# Levantá con:  docker compose -f docker-compose.prod.yml -f docker-compose.npm.yml up -d
+# y en NPM apuntá el Proxy Host a  http://<nombre-contenedor-web>:3000

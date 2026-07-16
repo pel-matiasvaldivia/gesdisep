@@ -18,9 +18,16 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 
 # ── Build ──
 FROM base AS build
-# URL de la API embebida en el bundle del cliente (configurable en build).
-ARG NEXT_PUBLIC_API_URL=http://localhost:3001
+# URL de la API embebida en el bundle del cliente. Por defecto vacía = mismo
+# origen: el navegador llama a /api/* y la web lo proxea a la API interna
+# (ver rewrites en next.config.mjs). Para llamar a una API en otro host, pasar
+# --build-arg NEXT_PUBLIC_API_URL=https://api.tu-dominio.
+ARG NEXT_PUBLIC_API_URL=
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+# Destino del proxy /api. Next evalúa los rewrites en BUILD, así que se hornea
+# acá. Por defecto apunta al servicio "api" del docker-compose de producción.
+ARG API_INTERNAL_URL=http://api:3001
+ENV API_INTERNAL_URL=$API_INTERNAL_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules

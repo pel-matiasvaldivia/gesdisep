@@ -54,6 +54,31 @@ docker build -f apps/web/Dockerfile --build-arg NEXT_PUBLIC_API_URL=https://api.
 
 La imagen de API ejecuta `prisma migrate deploy` en el arranque; con `SEED_ON_START=true` siembra los usuarios por rol.
 
+## Despliegue en VPS con Nginx Proxy Manager (NPM)
+
+Pensado para un VPS donde **NPM ya resuelve el SSL**. Se expone **solo la web**; la API y la base quedan internas. El navegador llama a `/api` en el **mismo origen** y la web lo proxea a la API por la red de Docker (rewrite de Next horneado en la imagen apuntando al servicio `api`). Así no hace falta publicar la API.
+
+Archivos: [`docker-compose.prod.yml`](docker-compose.prod.yml) y [`.env.prod.example`](.env.prod.example).
+
+En el VPS:
+
+```bash
+# 1) Configurar
+cp .env.prod.example .env      # completar secretos, dominio (PUBLIC_VERIFY_URL) y WEB_PORT
+echo "$GHCR_TOKEN" | docker login ghcr.io -u <usuario> --password-stdin   # PAT read:packages
+
+# 2) Traer imágenes y levantar
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+
+# 3) En NPM: crear un Proxy Host apuntando a  http://127.0.0.1:${WEB_PORT}
+#    (Forward Hostname/Port), con el certificado SSL del dominio.
+```
+
+Por defecto la web se liga a `127.0.0.1:${WEB_PORT}` (no queda pública; solo NPM la alcanza). Actualizaciones: `docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d`.
+
+> Si tu NPM corre **dentro de Docker**, lo más limpio es compartir una red de Docker en vez de exponer el puerto al host — hay un override de ejemplo documentado dentro de `docker-compose.prod.yml`.
+
 ## El sistema (monorepo)
 
 Esqueleto funcional del sistema, generado a partir del prompt maestro:
