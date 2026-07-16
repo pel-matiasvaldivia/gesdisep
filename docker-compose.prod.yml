@@ -31,7 +31,7 @@ services:
     networks: [internal]
 
   api:
-    image: ${API_IMAGE:-ghcr.io/pel-matiasvaldivia/gesdisep-api:main}
+    image: ghcr.io/pel-matiasvaldivia/gesdisep-api:main
     restart: unless-stopped
     depends_on:
       db:
@@ -55,7 +55,7 @@ services:
     # Sin 'ports': la API no se expone al host; solo la alcanza la web.
 
   web:
-    image: ${WEB_IMAGE:-ghcr.io/pel-matiasvaldivia/gesdisep-web:main}
+    image: ghcr.io/pel-matiasvaldivia/gesdisep-web:main
     restart: unless-stopped
     depends_on: [api]
     # El proxy /api -> http://api:3001 va horneado en la imagen (Next evalúa los
