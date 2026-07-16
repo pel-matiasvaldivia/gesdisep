@@ -25,9 +25,51 @@ Marco normativo: **Ley N° 9578** (B.O. 28/10/2024) y su **Decreto Reglamentario
 
 Abrí `landing/index.html` en el navegador (es un único archivo autocontenido, sin dependencias externas).
 
-## Próximo paso sugerido
+## El sistema (monorepo)
 
-Usar el **prompt maestro** de `docs/02-prompt-sistema.md` para generar el monorepo del sistema (Next.js + NestJS + PostgreSQL + capa de integración con organismos).
+Esqueleto funcional del sistema, generado a partir del prompt maestro:
+
+```
+apps/
+  api/          # Backend NestJS (REST) + Prisma + capa de integración
+  web/          # Frontend Next.js (landing + verificador de credenciales)
+packages/
+  shared/       # Dominio compartido: enums, reglas, catálogo de requisitos, máquina de estados
+docker-compose.yml   # PostgreSQL + Redis + MinIO
+```
+
+### Stack
+
+- **Backend:** NestJS + TypeScript, Prisma (PostgreSQL), JWT + RBAC por rol.
+- **Integraciones:** capa puerto/adaptador (`apps/api/src/validacion/integration`) con RENAPER, AFIP, ATM, DPJ y Reincidencia. Cada adaptador funciona en modo `real` o `stub` (configurable por `.env`), con reintentos y fallback a verificación manual.
+- **Credenciales:** emisión con QR firmado (HMAC) y verificación pública sin autenticación.
+- **Frontend:** Next.js (App Router) con verificador de credenciales que consume la API.
+
+### Puesta en marcha (desarrollo)
+
+Requisitos: Node 20+, pnpm 9+, Docker.
+
+```bash
+cp .env.example .env
+pnpm install
+pnpm infra:up            # levanta Postgres, Redis y MinIO
+pnpm db:migrate          # crea el esquema (prisma migrate)
+pnpm db:seed             # usuarios por rol (password: gesdisep123)
+pnpm dev                 # API en :3001 y Web en :3000
+```
+
+Usuarios de prueba (password `gesdisep123`): `director@disep.mendoza.gob.ar`,
+`analista@disep.mendoza.gob.ar`, `empresa@ejemplo.com`, etc. Ver `apps/api/prisma/seed.ts`.
+
+Ejemplos de llamadas a la API en [`apps/api/requests.http`](apps/api/requests.http).
+
+### Flujo implementado (extremo a extremo)
+
+1. **Registro** de prestador (`POST /api/prestadores`) → crea el legajo con el **checklist de requisitos** de su categoría.
+2. **Verificación automática** (`POST /api/validacion/legajos/:id/verificar`) → corre los adaptadores de organismos y marca cada requisito como verificado/observado.
+3. **Workflow** del legajo (`POST /api/legajos/:id/transicion`) con **máquina de estados** validada y precondiciones por etapa.
+4. **Habilitación** → genera la resolución.
+5. **Emisión de credencial** con QR (`POST /api/credenciales`) y **verificación pública** (`GET /api/credenciales/verificar/:token`).
 
 ---
 

@@ -1,0 +1,60 @@
+### GESDISEP — ejemplos de la API (usar con la extensión REST Client de VS Code)
+@base = http://localhost:3001/api
+
+### 1) Login (Director)
+# @name login
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "director@disep.mendoza.gob.ar", "password": "gesdisep123" }
+
+### Guardar token
+@token = {{login.response.body.accessToken}}
+
+### 2) Login empresa
+# @name loginEmpresa
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "empresa@ejemplo.com", "password": "gesdisep123" }
+
+@tokenEmpresa = {{loginEmpresa.response.body.accessToken}}
+
+### 3) Registrar un prestador (crea el legajo con su checklist)
+# @name crear
+POST {{base}}/prestadores
+Authorization: Bearer {{tokenEmpresa}}
+Content-Type: application/json
+
+{
+  "tipo": "HUMANA",
+  "tipoPersona": "PERSONA_JURIDICA",
+  "razonSocial": "Seguridad del Oeste S.A.",
+  "cuit": "30-71234567-9",
+  "domicilioSocial": "Av. San Martín 1234, Mendoza",
+  "domicilioElectronico": "legales@seguridadoeste.com",
+  "telefono": "2614000000"
+}
+
+@legajoId = {{crear.response.body.legajo.id}}
+
+### 4) Verificación automática contra organismos
+POST {{base}}/validacion/legajos/{{legajoId}}/verificar
+Authorization: Bearer {{token}}
+
+### 5) Presentar el legajo (transición de estado)
+POST {{base}}/legajos/{{legajoId}}/transicion
+Authorization: Bearer {{tokenEmpresa}}
+Content-Type: application/json
+
+{ "hacia": "PRESENTADA" }
+
+### 6) Emitir credencial (Director) — usar el personaId de la persona demo
+POST {{base}}/credenciales
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "personaId": "<ID_DE_PERSONA>", "tipo": "VIGILADOR_GENERAL" }
+
+### 7) Verificación pública por QR (sin auth)
+GET {{base}}/credenciales/verificar/<QR_TOKEN>

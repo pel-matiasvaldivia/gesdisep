@@ -1,0 +1,237 @@
+// Schema Prisma — GESDISEP
+// Modelo de datos del Registro Provincial de Prestadores de Seguridad Privada.
+// Ley 9578 / Decreto 264/2025 (Mendoza).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────── Usuarios y RBAC ─────────────────────────
+
+model Usuario {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  nombre       String
+  roles        String[] // valores de enum Rol (@gesdisep/shared)
+  activo       Boolean   @default(true)
+  mfaHabilitado Boolean  @default(false)
+  origen       String    @default("LOCAL") // LOCAL | CIDI
+  prestadorId  String?
+  prestador    Prestador? @relation(fields: [prestadorId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  auditorias   AuditLog[]
+}
+
+// ───────────────────────── Prestadores ─────────────────────────
+
+model Prestador {
+  id                   String   @id @default(cuid())
+  tipo                 String // PrestadorTipo
+  tipoPersona          String // TipoPersona
+  razonSocial          String
+  cuit                 String   @unique
+  domicilioSocial      String
+  domicilioElectronico String
+  telefono             String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  legajos     Legajo[]
+  personal    PersonalPrestador[]
+  objetivos   Objetivo[]
+  sanciones   Sancion[]
+  usuarios    Usuario[]
+}
+
+// ───────────────────────── Personas y personal ─────────────────────────
+
+model Persona {
+  id             String   @id @default(cuid())
+  nombre         String
+  apellido       String
+  dni            String   @unique
+  cuil           String?
+  fechaNac       DateTime?
+  domicilio      String?
+  residenciaProv Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  credenciales   Credencial[]
+  asignaciones   PersonalPrestador[]
+  requisitos     Requisito[]
+}
+
+model PersonalPrestador {
+  id          String   @id @default(cuid())
+  prestadorId String
+  personaId   String
+  rol         String // DIRECTOR_TECNICO | VIGILADOR | RESPONSABLE_TECNICO | SUPERVISOR
+  desde       DateTime @default(now())
+  hasta       DateTime?
+  prestador   Prestador @relation(fields: [prestadorId], references: [id])
+  persona     Persona   @relation(fields: [personaId], references: [id])
+
+  @@unique([prestadorId, personaId, rol])
+}
+
+// ───────────────────────── Legajo (workflow) ─────────────────────────
+
+model Legajo {
+  id          String   @id @default(cuid())
+  prestadorId String
+  estado      String   @default("BORRADOR") // LegajoEstado
+  categoria   String // PrestadorTipo (redundante para reporte)
+  periodo     Int // año de la campaña
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  prestador   Prestador @relation(fields: [prestadorId], references: [id])
+  requisitos  Requisito[]
+  historial   LegajoHistorial[]
+  resoluciones Resolucion[]
+}
+
+model LegajoHistorial {
+  id          String   @id @default(cuid())
+  legajoId    String
+  desde       String
+  hacia       String
+  observacion String?
+  actorId     String?
+  createdAt   DateTime @default(now())
+  legajo      Legajo   @relation(fields: [legajoId], references: [id])
+}
+
+// ───────────────────────── Requisitos y documentos ─────────────────────────
+
+model Requisito {
+  id                 String   @id @default(cuid())
+  legajoId           String?
+  personaId          String?
+  codigo             String
+  descripcion        String
+  obligatorio        Boolean  @default(true)
+  estado             String   @default("PENDIENTE") // RequisitoEstado
+  organismo          String? // Organismo verificador si existe
+  metodoVerificacion String? // MetodoVerificacion
+  fuente             String?
+  fechaVerificacion  DateTime?
+  observacion        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  legajo       Legajo?       @relation(fields: [legajoId], references: [id])
+  persona      Persona?      @relation(fields: [personaId], references: [id])
+  documentos   Documento[]
+  verificaciones VerificacionExterna[]
+}
+
+model Documento {
+  id          String   @id @default(cuid())
+  requisitoId String
+  archivoRef  String // clave en el object storage
+  nombre      String
+  version     Int      @default(1)
+  hash        String?
+  antivirusOk Boolean  @default(false)
+  subidoPor   String?
+  createdAt   DateTime @default(now())
+  requisito   Requisito @relation(fields: [requisitoId], references: [id])
+}
+
+model VerificacionExterna {
+  id          String   @id @default(cuid())
+  requisitoId String
+  organismo   String
+  input       Json?
+  output      Json?
+  resultado   String // OK | RECHAZO | NO_DISPONIBLE | ERROR
+  fuente      String?
+  createdAt   DateTime @default(now())
+  requisito   Requisito @relation(fields: [requisitoId], references: [id])
+}
+
+// ───────────────────────── Credenciales ─────────────────────────
+
+model Credencial {
+  id             String   @id @default(cuid())
+  personaId      String
+  tipo           String // CredencialTipo
+  color          String // CREDENCIAL_COLOR
+  numeroRegistro String   @unique
+  emision        DateTime @default(now())
+  vencimiento    DateTime
+  estado         String   @default("VIGENTE") // CredencialEstado
+  qrToken        String   @unique
+  createdAt      DateTime @default(now())
+  persona        Persona  @relation(fields: [personaId], references: [id])
+}
+
+// ───────────────────────── Objetivos y libro de novedades ─────────────────────────
+
+model Objetivo {
+  id          String   @id @default(cuid())
+  prestadorId String
+  direccion   String
+  comitente   String
+  createdAt   DateTime @default(now())
+  prestador   Prestador @relation(fields: [prestadorId], references: [id])
+  novedades   Novedad[]
+}
+
+model Novedad {
+  id         String   @id @default(cuid())
+  objetivoId String
+  fechaHora  DateTime @default(now())
+  tipo       String
+  detalle    String
+  autorId    String?
+  objetivo   Objetivo @relation(fields: [objetivoId], references: [id])
+}
+
+// ───────────────────────── Sanciones y resoluciones ─────────────────────────
+
+model Sancion {
+  id          String   @id @default(cuid())
+  prestadorId String
+  gravedad    String // LEVE | GRAVE | GRAVISIMA
+  tipo        String // APERCIBIMIENTO | MULTA | INHAB_TEMPORAL | INHAB_DEFINITIVA
+  monto       Decimal? @db.Decimal(14, 2)
+  reincidencia Int     @default(0)
+  estado      String   @default("VIGENTE")
+  createdAt   DateTime @default(now())
+  prestador   Prestador @relation(fields: [prestadorId], references: [id])
+}
+
+model Resolucion {
+  id           String   @id @default(cuid())
+  legajoId     String
+  numero       String   @unique
+  tipo         String // HABILITACION | RENOVACION | SANCION | INHABILITACION
+  pdfRef       String?
+  firmaDigital String?
+  createdAt    DateTime @default(now())
+  legajo       Legajo   @relation(fields: [legajoId], references: [id])
+}
+
+// ───────────────────────── Auditoría (append-only) ─────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  accion    String
+  entidad   String
+  entidadId String?
+  antes     Json?
+  despues   Json?
+  createdAt DateTime @default(now())
+  actor     Usuario? @relation(fields: [actorId], references: [id])
+}
