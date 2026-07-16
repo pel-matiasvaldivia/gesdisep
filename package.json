@@ -5,7 +5,7 @@
   "description": "Sistema de gestión del Registro Provincial de Prestadores de Seguridad Privada (Mendoza - Ley 9578 / Decreto 264/2025)",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "dev": "pnpm --parallel --filter ./apps/* dev",
+    "dev": "pnpm --filter @gesdisep/shared build && pnpm --parallel --filter ./apps/* dev",
     "build": "pnpm -r build",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
