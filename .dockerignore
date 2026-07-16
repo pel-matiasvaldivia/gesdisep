@@ -1,0 +1,16 @@
+**/node_modules
+**/dist
+**/.next
+**/out
+**/build
+**/coverage
+.git
+.github
+**/*.log
+**/.env
+**/.env.local
+landing
+docs
+*.md
+!apps/**/README.md
+pgdata

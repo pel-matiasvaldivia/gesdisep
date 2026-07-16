@@ -21,9 +21,38 @@ Marco normativo: **Ley N° 9578** (B.O. 28/10/2024) y su **Decreto Reglamentario
 - **Workflow con perfiles por etapa**: registro → carga documental → validación → inspección → autorización/habilitación → renovación.
 - **Credenciales** por rol (7 colores) con **QR verificable**, sanciones, renovaciones y notificaciones electrónicas.
 
-## Ver la landing
+## Landing page
 
-Abrí `landing/index.html` en el navegador (es un único archivo autocontenido, sin dependencias externas).
+La landing está **integrada en la app Next.js**: es la home (`/`) de `apps/web`, servida por la aplicación, con el **verificador de credenciales conectado a la API real**. El QR de cada credencial apunta a `/verificar/<token>`, que verifica automáticamente al escanear.
+
+- `apps/web/app/page.tsx` — landing (home de la app).
+- `apps/web/app/verificar` — verificador manual y por deep-link de QR.
+- `landing/index.html` — copia estática autocontenida (material informativo/offline).
+
+## CI/CD (GitHub Actions)
+
+Workflow en [`.github/workflows/ci.yml`](.github/workflows/ci.yml), en cada push y PR:
+
+1. **quality** — instala, genera Prisma Client, typecheck de `shared`/`api`/`web` y build de API y Web.
+2. **e2e** — levanta un servicio PostgreSQL, aplica `prisma migrate deploy`, siembra y corre un **smoke test** (login → registro → verificación de credencial).
+3. **docker** — solo en push: construye las imágenes Docker de API y Web y las publica en **GitHub Container Registry**:
+   - `ghcr.io/<owner>/<repo>-api`
+   - `ghcr.io/<owner>/<repo>-web`
+
+   Usa el `GITHUB_TOKEN` del repo (permiso `packages: write`), sin secretos adicionales. Para la URL pública de la API en el bundle web, definí la variable de repo `NEXT_PUBLIC_API_URL`.
+
+### Imágenes Docker
+
+Cada app tiene su `Dockerfile` multi-stage (contexto = raíz del monorepo):
+
+```bash
+# API (aplica migraciones al arrancar vía docker-entrypoint.sh)
+docker build -f apps/api/Dockerfile -t gesdisep-api .
+# Web (Next.js standalone)
+docker build -f apps/web/Dockerfile --build-arg NEXT_PUBLIC_API_URL=https://api.tu-dominio -t gesdisep-web .
+```
+
+La imagen de API ejecuta `prisma migrate deploy` en el arranque; con `SEED_ON_START=true` siembra los usuarios por rol.
 
 ## El sistema (monorepo)
 
