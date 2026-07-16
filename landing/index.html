@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro Provincial de Prestadores de Seguridad Privada — DI.SE.P. Mendoza</title>
+<meta name="description" content="Portal del Registro Provincial de Prestadores de Seguridad Privada Humana, Interna y Tecnológica de Mendoza (Ley 9578). Guía de requisitos, trámites y verificación de credenciales.">
+<style>
+  :root{
+    --azul:#0b3d6e; --azul-2:#0e4d8b; --celeste:#2e7dd1; --acento:#c8a04a;
+    --bg:#f5f7fa; --surface:#ffffff; --text:#1a2230; --muted:#5a6675;
+    --border:#e2e8f0; --ok:#1f9d55; --shadow:0 1px 3px rgba(16,32,64,.08),0 8px 24px rgba(16,32,64,.06);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0c1017; --surface:#141b26; --text:#e8edf4; --muted:#9aa7b8;
+      --border:#25303f; --azul:#123a63; --azul-2:#0e2f52; --celeste:#4f9be0;
+      --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35); }
+  }
+  :root[data-theme="dark"]{ --bg:#0c1017; --surface:#141b26; --text:#e8edf4; --muted:#9aa7b8;
+    --border:#25303f; --azul:#123a63; --azul-2:#0e2f52; --celeste:#4f9be0;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35); }
+  :root[data-theme="light"]{ --bg:#f5f7fa; --surface:#ffffff; --text:#1a2230; --muted:#5a6675;
+    --border:#e2e8f0; --azul:#0b3d6e; --azul-2:#0e4d8b; --celeste:#2e7dd1;
+    --shadow:0 1px 3px rgba(16,32,64,.08),0 8px 24px rgba(16,32,64,.06); }
+
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--celeste);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  h1,h2,h3{line-height:1.2;margin:0 0 .4em}
+  h2{font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:-.02em}
+  section{padding:64px 0}
+  .eyebrow{color:var(--celeste);font-weight:700;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+  .lead{color:var(--muted);font-size:1.08rem;max-width:70ch}
+
+  /* Top bar */
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;backdrop-filter:saturate(1.2)}
+  .topbar .wrap{display:flex;align-items:center;gap:16px;height:64px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800;color:var(--text)}
+  .crest{width:38px;height:38px;border-radius:9px;background:linear-gradient(140deg,var(--azul),var(--celeste));
+    display:grid;place-items:center;color:#fff;font-size:1.1rem;flex:none;box-shadow:var(--shadow)}
+  .brand small{display:block;font-weight:600;color:var(--muted);font-size:.72rem;letter-spacing:.04em}
+  .nav{margin-left:auto;display:flex;gap:22px;align-items:center}
+  .nav a{color:var(--text);font-weight:600;font-size:.92rem}
+  .nav .btn{margin-left:6px}
+  @media(max-width:820px){.nav a:not(.btn){display:none}}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--azul-2);color:#fff;font-weight:700;
+    padding:11px 20px;border-radius:10px;border:0;cursor:pointer;font-size:.95rem;transition:transform .12s,filter .12s}
+  .btn:hover{filter:brightness(1.08);text-decoration:none;transform:translateY(-1px)}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+  .btn.gold{background:linear-gradient(120deg,var(--acento),#e0bd67);color:#3a2c05}
+
+  /* Hero */
+  .hero{background:
+      radial-gradient(1200px 500px at 80% -10%,rgba(46,125,209,.18),transparent 60%),
+      linear-gradient(160deg,var(--azul) 0%,var(--azul-2) 55%,#0a2d52 100%);
+    color:#eaf2fb;position:relative;overflow:hidden}
+  .hero:after{content:"";position:absolute;inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+    background-size:44px 44px;mask:radial-gradient(600px 300px at 75% 20%,#000,transparent 75%);opacity:.5}
+  .hero .wrap{position:relative;z-index:1;padding:72px 20px 84px;display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center}
+  @media(max-width:860px){.hero .wrap{grid-template-columns:1fr;gap:28px}}
+  .hero h1{font-size:clamp(2rem,4.4vw,3.1rem);letter-spacing:-.025em;margin-bottom:.35em}
+  .hero p{color:#c6dcf2;font-size:1.12rem;max-width:60ch}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+    color:#eaf2fb;padding:6px 14px;border-radius:999px;font-size:.82rem;font-weight:600;margin-bottom:20px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+  .stats{display:flex;gap:26px;margin-top:38px;flex-wrap:wrap}
+  .stats div{border-left:2px solid var(--acento);padding-left:12px}
+  .stats b{display:block;font-size:1.5rem}
+  .stats span{color:#a9c6e6;font-size:.82rem}
+
+  .verify-card{background:var(--surface);color:var(--text);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .verify-card h3{display:flex;align-items:center;gap:10px}
+  .qr{width:100%;aspect-ratio:16/8;border-radius:10px;background:
+      repeating-linear-gradient(45deg,var(--border),var(--border) 8px,transparent 8px,transparent 16px);
+    display:grid;place-items:center;color:var(--muted);font-size:.85rem;margin:14px 0;border:1px dashed var(--border)}
+  .field{display:flex;gap:8px}
+  .field input{flex:1;padding:11px 13px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.95rem}
+  .result{margin-top:12px;font-size:.9rem;padding:12px;border-radius:10px;display:none}
+  .result.show{display:block}
+  .result.valid{background:rgba(31,157,85,.12);border:1px solid var(--ok);color:var(--ok)}
+
+  /* Cards grid */
+  .grid{display:grid;gap:20px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:860px){.g3,.g4{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .card .ic{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--azul),var(--celeste));
+    display:grid;place-items:center;font-size:1.35rem;margin-bottom:14px}
+  .card h3{font-size:1.12rem}
+  .card p{color:var(--muted);margin:0;font-size:.94rem}
+  .tag{display:inline-block;font-size:.72rem;font-weight:700;color:var(--celeste);background:rgba(46,125,209,.1);
+    padding:3px 10px;border-radius:999px;margin-bottom:12px}
+
+  /* Requirements accordion */
+  details{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  details[open]{box-shadow:var(--shadow)}
+  summary{cursor:pointer;padding:18px 22px;font-weight:700;list-style:none;display:flex;align-items:center;gap:12px}
+  summary::-webkit-details-marker{display:none}
+  summary .chev{margin-left:auto;transition:transform .2s;color:var(--muted)}
+  details[open] summary .chev{transform:rotate(90deg)}
+  summary .dot{width:10px;height:10px;border-radius:3px;flex:none}
+  .det-body{padding:4px 22px 22px}
+  .det-body ul{margin:0;padding-left:20px;columns:2;column-gap:34px}
+  @media(max-width:640px){.det-body ul{columns:1}}
+  .det-body li{margin:5px 0;break-inside:avoid;color:var(--text);font-size:.93rem}
+
+  /* Steps */
+  .steps{counter-reset:s;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  @media(max-width:860px){.steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;position:relative}
+  .step:before{counter-increment:s;content:counter(s);position:absolute;top:-14px;left:20px;width:32px;height:32px;
+    background:var(--azul-2);color:#fff;border-radius:9px;display:grid;place-items:center;font-weight:800;box-shadow:var(--shadow)}
+  .step h4{margin:14px 0 6px;font-size:1rem}
+  .step p{color:var(--muted);font-size:.88rem;margin:0}
+
+  /* Credentials */
+  .creds{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:860px){.creds{grid-template-columns:1fr 1fr}}
+  .cred{border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--surface);display:flex;align-items:center;gap:12px}
+  .swatch{width:34px;height:34px;border-radius:8px;flex:none;border:1px solid rgba(0,0,0,.15)}
+  .cred b{font-size:.92rem;display:block}
+  .cred span{font-size:.78rem;color:var(--muted)}
+
+  .band{background:linear-gradient(120deg,var(--azul),var(--azul-2));color:#eaf2fb;border-radius:var(--radius)}
+  .band .wrap{padding:44px 26px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .band h2{color:#fff;margin:0}
+  .band p{color:#c6dcf2;margin:6px 0 0;max-width:52ch}
+
+  .note{font-size:.82rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);
+    border-left:3px solid var(--acento);padding:14px 16px;border-radius:8px;margin-top:26px}
+
+  footer{background:var(--surface);border-top:1px solid var(--border);padding:40px 0;color:var(--muted);font-size:.88rem}
+  footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:26px}
+  @media(max-width:720px){footer .cols{grid-template-columns:1fr}}
+  footer h5{color:var(--text);margin:0 0 10px;font-size:.9rem}
+  footer a{display:block;color:var(--muted);margin:5px 0}
+  .theme-toggle{background:transparent;border:1px solid var(--border);color:var(--text);width:38px;height:38px;
+    border-radius:9px;cursor:pointer;font-size:1rem}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <div class="crest">🛡️</div>
+      <div>GESDISEP<br><small>Dirección de Seguridad Privada · Mendoza</small></div>
+    </div>
+    <nav class="nav">
+      <a href="#categorias">Categorías</a>
+      <a href="#requisitos">Requisitos</a>
+      <a href="#tramite">Trámite</a>
+      <a href="#verificar">Verificar credencial</a>
+      <button class="theme-toggle" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
+      <a href="#acceso" class="btn">Ingresar / Registrar</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <span class="badge">● Ley N° 9578 · Decreto N° 264/2025</span>
+      <h1>Registro Provincial de Prestadores de Seguridad Privada</h1>
+      <p>Gestioná en línea la habilitación de empresas de seguridad <strong>humana, interna y tecnológica</strong> y de tu personal habilitado. Carga documental, validación con organismos y credenciales verificables por QR.</p>
+      <div class="hero-cta">
+        <a href="#acceso" class="btn gold">Registrar mi empresa →</a>
+        <a href="#requisitos" class="btn ghost" style="color:#eaf2fb;border-color:rgba(255,255,255,.3)">Ver requisitos</a>
+      </div>
+      <div class="stats">
+        <div><b>3</b><span>Categorías de prestador</span></div>
+        <div><b>7</b><span>Tipos de credencial</span></div>
+        <div><b>100%</b><span>Trámite digital</span></div>
+      </div>
+    </div>
+    <div class="verify-card" id="verificar">
+      <h3>🔎 Verificar una credencial</h3>
+      <p style="color:var(--muted);font-size:.9rem;margin:.2em 0 0">Escaneá el QR o ingresá el número de registro para comprobar su autenticidad y vigencia.</p>
+      <div class="qr">▦ Escanear código QR</div>
+      <div class="field">
+        <input id="regInput" type="text" placeholder="N° de registro (ej. DISEP-VG-04821)" aria-label="Número de registro">
+        <button class="btn" onclick="verificar()">Verificar</button>
+      </div>
+      <div class="result" id="verifResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIAS -->
+<section id="categorias" class="wrap">
+  <div class="eyebrow">Sujetos regulados</div>
+  <h2>Tres categorías de prestador</h2>
+  <p class="lead">Según la actividad, cada prestador se inscribe en una categoría con requisitos propios. El sistema te guía con un checklist específico.</p>
+  <div class="grid g3" style="margin-top:32px">
+    <div class="card">
+      <div class="ic">👮</div>
+      <span class="tag">Art. 7 · 11 · 12</span>
+      <h3>Seguridad Privada Humana</h3>
+      <p>Empresas (personas jurídicas) de vigilancia, custodias personales y de mercadería, investigación, locales bailables, seguridad nocturna y eventos masivos.</p>
+    </div>
+    <div class="card">
+      <div class="ic">🏢</div>
+      <span class="tag">Art. 8 · 13 · 14</span>
+      <h3>Seguridad Privada Interna</h3>
+      <p>Comercios, industrias y consorcios con personal propio para fines propios. Hasta 30 vigiladores; no puede prestar servicios a terceros.</p>
+    </div>
+    <div class="card">
+      <div class="ic">📡</div>
+      <span class="tag">Art. 9 · 15</span>
+      <h3>Seguridad Privada Tecnológica</h3>
+      <p>Instalación y mantenimiento de alarmas y videovigilancia, y monitoreo remoto de objetivos fijos y móviles. Requiere responsable técnico y protocolos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- REQUISITOS -->
+<section id="requisitos" style="background:linear-gradient(180deg,transparent,rgba(46,125,209,.05))">
+  <div class="wrap">
+    <div class="eyebrow">Documentación</div>
+    <h2>¿Qué tenés que presentar?</h2>
+    <p class="lead">Reuní esta documentación antes de iniciar el trámite. El sistema verifica automáticamente lo que puede contra AFIP, ATM, Personas Jurídicas, Reincidencia y RENAPER.</p>
+
+    <div style="margin-top:30px">
+      <details open>
+        <summary><span class="dot" style="background:#0e4d8b"></span> Empresa de Seguridad Privada Humana <span class="chev">›</span></summary>
+        <div class="det-body"><ul>
+          <li>Sociedad constituida (Ley 19.550 / SAS 27.349)</li>
+          <li>Contrato social inscripto en Personas Jurídicas</li>
+          <li>Razón social, domicilio electrónico, CUIT y teléfono</li>
+          <li>Datos del órgano de dirección (DNI, CUIL, domicilio)</li>
+          <li>Antecedentes penales de directores y propietarios</li>
+          <li>Huellas y tomas genéticas (Ley 8611)</li>
+          <li>Seguro de caución a favor del Ministerio</li>
+          <li>Seguro de responsabilidad civil contra terceros</li>
+          <li>Seguro ART</li>
+          <li>Inscripción AFIP, ATM, obra social y habilitación municipal</li>
+          <li>Pago de la tasa anual</li>
+          <li>Declaración de vehículos afectados</li>
+          <li>Designación de Director Técnico</li>
+          <li>Inscripción en ANMaC (si usa armas de fuego)</li>
+          <li>Sede/local de uso exclusivo habilitado</li>
+        </ul></div>
+      </details>
+
+      <details>
+        <summary><span class="dot" style="background:#e0b000"></span> Seguridad Privada Interna <span class="chev">›</span></summary>
+        <div class="det-body"><ul>
+          <li>Nota de solicitud con datos y domicilio electrónico</li>
+          <li>Estatuto y resolución de Personas Jurídicas (si es PJ)</li>
+          <li>Nómina de trabajadores + Formulario 931 AFIP</li>
+          <li>Copia del DNI del solicitante</li>
+          <li>Certificado de antecedentes penales</li>
+          <li>Pago de la tasa anual diferenciada</li>
+          <li>Libro de objetivos autorizado</li>
+          <li>Seguro de RC y de caución (si es PJ)</li>
+          <li>Director Técnico si supera 5 vigiladores simultáneos</li>
+          <li>Personal habilitado y capacitado</li>
+        </ul></div>
+      </details>
+
+      <details>
+        <summary><span class="dot" style="background:#7c3aed"></span> Seguridad Privada Tecnológica <span class="chev">›</span></summary>
+        <div class="det-body"><ul>
+          <li>Inscripción AFIP y ATM</li>
+          <li>Datos personales y domicilio electrónico</li>
+          <li>Certificado de antecedentes penales</li>
+          <li>Formulario 931 AFIP (si corresponde)</li>
+          <li>Pago de tasa anual</li>
+          <li>Responsable técnico con título afín o idoneidad</li>
+          <li>Seguro de caución (si es PJ)</li>
+          <li>Protocolos de actuación ante eventos/alarmas</li>
+          <li>Contrato social inscripto (si es PJ)</li>
+          <li>Capacitación e idoneidad del personal</li>
+        </ul></div>
+      </details>
+
+      <details>
+        <summary><span class="dot" style="background:#2e7dd1"></span> Personal — Vigiladores <span class="chev">›</span></summary>
+        <div class="det-body"><ul>
+          <li>Argentino o residencia precaria autorizada</li>
+          <li>Secundario completo</li>
+          <li>Mayor de 18 años</li>
+          <li>Residencia en Mendoza</li>
+          <li>Aptitud psico-física (55+: cada 4 años)</li>
+          <li>Capacitación básica y por especialidad (cada 5 años)</li>
+          <li>Certificado de reincidencia penal</li>
+          <li>Sin antecedentes que afecten la idoneidad</li>
+          <li>No pertenecer a FFAA/FFSS/policía en actividad</li>
+          <li>Huellas y tomas genéticas (Ley 8611)</li>
+        </ul></div>
+      </details>
+
+      <details>
+        <summary><span class="dot" style="background:#e2e8f0;border:1px solid #94a3b8"></span> Personal — Director Técnico <span class="chev">›</span></summary>
+        <div class="det-body"><ul>
+          <li>Mayor de edad</li>
+          <li>Sin condenas por delitos dolosos ni violaciones a DDHH</li>
+          <li>Residencia en la provincia ≥ 2 años</li>
+          <li>No cesanteado/exonerado de la administración pública</li>
+          <li>Huellas y tomas genéticas (Ley 8611)</li>
+          <li>Título de grado en seguridad pública/ciudadana</li>
+          <li>Puede ejercer en hasta 3 empresas</li>
+        </ul></div>
+      </details>
+    </div>
+
+    <div class="note">⚠️ Esta guía es orientativa y se basa en la Ley N° 9578 y el Decreto N° 264/2025. La documentación definitiva y las tasas vigentes las determina la Autoridad de Aplicación (Ministerio de Seguridad y Justicia — DI.SE.P.).</div>
+  </div>
+</section>
+
+<!-- TRAMITE -->
+<section id="tramite" class="wrap">
+  <div class="eyebrow">Cómo funciona</div>
+  <h2>El trámite, paso a paso</h2>
+  <p class="lead">Un flujo digital con perfiles por etapa: desde el registro de la empresa hasta la resolución de habilitación y la emisión de credenciales.</p>
+  <div class="steps" style="margin-top:36px">
+    <div class="step"><h4>Registro</h4><p>Creás tu cuenta y el legajo de la empresa o persona.</p></div>
+    <div class="step"><h4>Carga documental</h4><p>Subís la documentación según tu categoría con un checklist guiado.</p></div>
+    <div class="step"><h4>Validación</h4><p>Verificación automática con organismos y revisión del analista. Si falta algo, se observa para subsanar.</p></div>
+    <div class="step"><h4>Habilitación</h4><p>Inspección si corresponde, resolución de la Dirección y emisión de credenciales con QR.</p></div>
+  </div>
+  <div class="grid g4" style="margin-top:26px">
+    <div class="card"><div class="ic">🔗</div><h3>Interoperabilidad</h3><p>Conexión con AFIP, ATM, Personas Jurídicas, Reincidencia, RENAPER, ANMaC y más.</p></div>
+    <div class="card"><div class="ic">🔐</div><h3>Datos protegidos</h3><p>Tratamiento seguro conforme a la Ley 25.326 y confidencialidad de la información.</p></div>
+    <div class="card"><div class="ic">📨</div><h3>Notificación electrónica</h3><p>Recibís las notificaciones en tu domicilio electrónico, con validez legal.</p></div>
+    <div class="card"><div class="ic">🔄</div><h3>Renovación anual</h3><p>Campaña del 1 de enero al 10 de marzo, con alertas de vencimiento.</p></div>
+  </div>
+</section>
+
+<!-- CREDENCIALES -->
+<section style="background:linear-gradient(180deg,transparent,rgba(46,125,209,.05))">
+  <div class="wrap">
+    <div class="eyebrow">Credenciales habilitantes</div>
+    <h2>Un color por función</h2>
+    <p class="lead">Vigencia de 2 años, con QR de verificación, holograma y elementos de seguridad. La credencial de Vigilador Bombero incluye general, nocturna y eventos deportivos.</p>
+    <div class="creds" style="margin-top:30px">
+      <div class="cred"><span class="swatch" style="background:#f8fafc"></span><div><b>Director Técnico / Supervisor</b><span>Credencial blanca</span></div></div>
+      <div class="cred"><span class="swatch" style="background:#d92d20"></span><div><b>Vigilador Bombero</b><span>Credencial roja</span></div></div>
+      <div class="cred"><span class="swatch" style="background:#1f9d55"></span><div><b>Eventos Deportivos</b><span>Credencial verde</span></div></div>
+      <div class="cred"><span class="swatch" style="background:#111827"></span><div><b>Diversión Nocturna</b><span>Credencial negra</span></div></div>
+      <div class="cred"><span class="swatch" style="background:#2e7dd1"></span><div><b>Vigilador General</b><span>Credencial azul</span></div></div>
+      <div class="cred"><span class="swatch" style="background:#eab308"></span><div><b>Seguridad Interna</b><span>Credencial amarilla</span></div></div>
+      <div class="cred"><span class="swatch" style="background:#7c3aed"></span><div><b>Instalación / Monitoreo</b><span>Credencial violeta</span></div></div>
+      <div class="cred"><span class="swatch" style="background:linear-gradient(135deg,#0b3d6e,#2e7dd1)"></span><div><b>Verificá por QR</b><span>Autenticidad y vigencia</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="acceso" class="wrap">
+  <div class="band">
+    <div class="wrap" style="padding:44px 26px">
+      <div>
+        <h2>¿Listo para registrar tu empresa?</h2>
+        <p>Ingresá con tu identidad provincial, cargá la documentación y seguí el estado de tu trámite en línea.</p>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="#" class="btn gold">Registrarme</a>
+        <a href="#" class="btn ghost" style="color:#eaf2fb;border-color:rgba(255,255,255,.35)">Ya tengo cuenta</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="brand" style="margin-bottom:12px"><div class="crest">🛡️</div><div>GESDISEP<br><small>Registro Provincial de Prestadores de Seguridad Privada</small></div></div>
+        <p style="max-width:44ch">Sistema de gestión del registro conforme a la Ley N° 9578 y su Decreto Reglamentario N° 264/2025. Dirección de Seguridad Privada (DI.SE.P.) — Ministerio de Seguridad y Justicia de Mendoza.</p>
+      </div>
+      <div>
+        <h5>Trámites</h5>
+        <a href="#categorias">Categorías de prestador</a>
+        <a href="#requisitos">Requisitos y documentación</a>
+        <a href="#tramite">Estado del trámite</a>
+        <a href="#verificar">Verificar credencial</a>
+      </div>
+      <div>
+        <h5>Normativa</h5>
+        <a href="#">Ley N° 9578</a>
+        <a href="#">Decreto N° 264/2025</a>
+        <a href="#">Ley 25.326 (Datos Personales)</a>
+        <a href="#">Preguntas frecuentes</a>
+      </div>
+    </div>
+    <p style="margin-top:26px;border-top:1px solid var(--border);padding-top:16px">Prototipo demostrativo · Contenido orientativo, no constituye notificación oficial. © Gobierno de Mendoza.</p>
+  </div>
+</footer>
+
+<script>
+  // Theme toggle
+  const btn=document.getElementById('themeBtn');
+  btn.addEventListener('click',()=>{
+    const root=document.documentElement;
+    const cur=root.getAttribute('data-theme');
+    const isDark = cur ? cur==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', isDark?'light':'dark');
+  });
+  // Demo credential verifier
+  function verificar(){
+    const v=document.getElementById('regInput').value.trim();
+    const r=document.getElementById('verifResult');
+    r.className='result show valid';
+    if(!v){ r.textContent='Ingresá un número de registro para verificar.'; r.className='result show'; return; }
+    r.innerHTML='✔ <strong>Credencial vigente</strong> — '+v+' · Vigilador General · Vence: 12/2026 · Emitida por DI.SE.P.<br><em style="opacity:.8">(Demostración — el sistema real consulta el registro oficial.)</em>';
+  }
+</script>
+</body>
+</html>
