@@ -91,11 +91,11 @@ jobs:
           B=http://localhost:3001/api
           TOK=$(curl -s -X POST $B/auth/login -H 'Content-Type: application/json' \
             -d '{"email":"empresa@ejemplo.com","password":"gesdisep123"}' \
-            | node -e "process.stdin.on('data',d=>console.log(JSON.parse(d).accessToken))")
+            | node -e "let b='';process.stdin.on('data',d=>b+=d).on('end',()=>{const j=JSON.parse(b);if(!j.accessToken){console.error('login falló:',b);process.exit(1)}console.log(j.accessToken)})")
           test -n "$TOK" && echo "login OK"
           LEG=$(curl -s -X POST $B/prestadores -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' \
-            -d '{"tipo":"HUMANA","tipoPersona":"PERSONA_JURIDICA","razonSocial":"CI SA","cuit":"30-71000000-5","domicilioSocial":"x","domicilioElectronico":"ci@ci.com","telefono":"2610000000"}' \
-            | node -e "process.stdin.on('data',d=>console.log(JSON.parse(d).legajo.id))")
+            -d '{"tipo":"HUMANA","tipoPersona":"PERSONA_JURIDICA","razonSocial":"CI SA","cuit":"30-71000000-5","domicilioSocial":"Calle Falsa 123, Mendoza","domicilioElectronico":"ci@ci.com","telefono":"2610000000"}' \
+            | node -e "let b='';process.stdin.on('data',d=>b+=d).on('end',()=>{const j=JSON.parse(b);if(!j.legajo){console.error('respuesta inesperada:',b);process.exit(1)}console.log(j.legajo.id)})")
           test -n "$LEG" && echo "registro OK (legajo $LEG)"
           curl -sf $B/credenciales/verificar/tokeninvalido | grep -q '"valida":false' && echo "verificador QR OK"
           kill "$(cat /tmp/api.pid)" || true
