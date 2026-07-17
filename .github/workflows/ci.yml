@@ -127,6 +127,7 @@ jobs:
             type=ref,event=branch
             type=sha,format=short
             type=semver,pattern={{version}}
+            type=raw,value=latest,enable={{is_default_branch}}
       - name: Build & push API
         uses: docker/build-push-action@v6
         with:
@@ -146,6 +147,7 @@ jobs:
             type=ref,event=branch
             type=sha,format=short
             type=semver,pattern={{version}}
+            type=raw,value=latest,enable={{is_default_branch}}
       - name: Build & push Web
         uses: docker/build-push-action@v6
         with:
