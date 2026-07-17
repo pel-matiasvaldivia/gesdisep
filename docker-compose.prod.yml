@@ -53,6 +53,10 @@ services:
       ADAPTER_ATM_MODE: ${ADAPTER_ATM_MODE:-stub}
       ADAPTER_DPJ_MODE: ${ADAPTER_DPJ_MODE:-stub}
       ADAPTER_REINCIDENCIA_MODE: ${ADAPTER_REINCIDENCIA_MODE:-stub}
+      # Carpeta de documentos digitalizados (persistida en el volumen api-docs).
+      STORAGE_DIR: /app/apps/api/storage
+    volumes:
+      - api-docs:/app/apps/api/storage
     networks: [internal]
     # Sin 'ports': la API no se expone al host; solo la alcanza la web.
 
@@ -72,6 +76,7 @@ services:
 
 volumes:
   db-data:
+  api-docs:
 
 networks:
   internal:
