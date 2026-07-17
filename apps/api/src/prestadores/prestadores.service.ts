@@ -60,6 +60,23 @@ export class PrestadoresService {
     return { prestador, legajo };
   }
 
+  /** Prestador vinculado al usuario autenticado (portal de empresa). */
+  async miPrestador(usuarioId: string) {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
+    if (!usuario?.prestadorId) {
+      throw new NotFoundException("El usuario no tiene un prestador registrado");
+    }
+    return this.prisma.prestador.findUnique({
+      where: { id: usuario.prestadorId },
+      include: {
+        legajos: {
+          orderBy: { createdAt: "desc" },
+          include: { requisitos: { orderBy: { codigo: "asc" } }, historial: true },
+        },
+      },
+    });
+  }
+
   async listar() {
     return this.prisma.prestador.findMany({
       orderBy: { createdAt: "desc" },

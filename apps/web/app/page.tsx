@@ -102,15 +102,15 @@ export default function Home() {
               organismos y credenciales verificables por QR.
             </p>
             <div className="hero-cta">
-              <Link href="#requisitos" className="btn gold">
-                Ver requisitos →
+              <Link href="/registro" className="btn gold">
+                Registrar mi empresa →
               </Link>
               <Link
-                href="/verificar"
+                href="/padron"
                 className="btn ghost"
                 style={{ color: "#eaf2fb", borderColor: "rgba(255,255,255,.3)" }}
               >
-                Verificar credencial
+                Ver padrón de empresas
               </Link>
             </div>
             <div className="stats">
@@ -275,8 +275,15 @@ export default function Home() {
               </p>
             </div>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <Link href="/verificar" className="btn gold">
-                Verificar credencial
+              <Link href="/registro" className="btn gold">
+                Registrarme
+              </Link>
+              <Link
+                href="/ingresar"
+                className="btn ghost"
+                style={{ color: "#eaf2fb", borderColor: "rgba(255,255,255,.35)" }}
+              >
+                Ya tengo cuenta
               </Link>
             </div>
           </div>
