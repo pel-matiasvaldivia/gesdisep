@@ -3,9 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 import TopBar from "../_components/TopBar";
 import Footer from "../_components/Footer";
-import { apiFetch, clearSession, getToken, getUser, SessionUser } from "../../lib/api";
+import { apiDownload, apiFetch, apiUpload, clearSession, getToken, getUser, SessionUser } from "../../lib/api";
 import { ESTADO_LEGAJO, ESTADO_REQUISITO, PASOS_TRAMITE, TIPO_PRESTADOR } from "../../lib/estados";
 
+interface Documento {
+  id: string;
+  nombre: string;
+  version: number;
+  createdAt: string;
+}
 interface Requisito {
   id: string;
   codigo: string;
@@ -13,6 +19,7 @@ interface Requisito {
   obligatorio: boolean;
   estado: string;
   observacion?: string | null;
+  documentos?: Documento[];
 }
 interface Legajo {
   id: string;
@@ -81,6 +88,27 @@ export default function Panel() {
       await cargar();
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo actualizar el requisito");
+    }
+  }
+
+  async function subirDocumento(legajoId: string, requisitoId: string, archivo: File) {
+    setError(null);
+    setAviso(null);
+    try {
+      await apiUpload(`/legajos/${legajoId}/requisitos/${requisitoId}/documentos`, archivo);
+      setAviso(`Documento "${archivo.name}" cargado correctamente.`);
+      await cargar();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo subir el archivo");
+    }
+  }
+
+  async function descargarDocumento(doc: Documento) {
+    setError(null);
+    try {
+      await apiDownload(`/documentos/${doc.id}/descargar`, doc.nombre);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo descargar el archivo");
     }
   }
 
@@ -277,17 +305,47 @@ export default function Panel() {
                           {r.estado === "OBSERVADO" && r.observacion && (
                             <div style={{ color: "#e0a100", fontSize: ".84rem", marginTop: 4 }}>⚠ {r.observacion}</div>
                           )}
+                          {(r.documentos ?? []).map((d) => (
+                            <div key={d.id} style={{ fontSize: ".84rem", marginTop: 4 }}>
+                              📄{" "}
+                              <a onClick={() => descargarDocumento(d)} style={{ cursor: "pointer" }}>
+                                {d.nombre}
+                              </a>{" "}
+                              <span className="muted">
+                                v{d.version} · {d.createdAt?.slice(0, 10)}
+                              </span>
+                            </div>
+                          ))}
                         </td>
                         <td style={{ padding: "12px 16px" }}>
                           <span className="badge" style={{ background: `${e.color}22`, color: e.color, border: `1px solid ${e.color}` }}>
                             {e.label}
                           </span>
                         </td>
-                        <td style={{ padding: "12px 16px", textAlign: "right" }}>
+                        <td style={{ padding: "12px 16px", textAlign: "right", whiteSpace: "nowrap" }}>
+                          <label className="btn" style={{ padding: "7px 14px", fontSize: ".85rem" }}>
+                            📎 Subir documento
+                            <input
+                              type="file"
+                              accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                              style={{ display: "none" }}
+                              onChange={(ev) => {
+                                const archivo = ev.target.files?.[0];
+                                ev.target.value = "";
+                                if (archivo) void subirDocumento(legajo.id, r.id, archivo);
+                              }}
+                            />
+                          </label>
                           {accionable && (
-                            <button className="btn" style={{ padding: "7px 14px", fontSize: ".85rem" }} onClick={() => presentarRequisito(legajo.id, r.id)}>
-                              Marcar presentado
-                            </button>
+                            <div>
+                              <a
+                                className="muted"
+                                style={{ fontSize: ".78rem", cursor: "pointer" }}
+                                onClick={() => presentarRequisito(legajo.id, r.id)}
+                              >
+                                marcar presentado sin archivo
+                              </a>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -297,9 +355,9 @@ export default function Panel() {
               </table>
             </div>
             <p className="note">
-              En esta etapa la presentación es declarativa: marcás cada requisito cuando tenés la
-              documentación lista para exhibir ante la Dirección. La carga de archivos digitalizados
-              se habilitará próximamente.
+              Subí la documentación digitalizada en PDF, JPG o PNG (máximo 10 MB por archivo). Cada
+              nueva carga genera una versión nueva sin borrar las anteriores. Al subir un archivo el
+              requisito queda marcado como presentado.
             </p>
           </>
         )}

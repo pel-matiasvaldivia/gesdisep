@@ -71,7 +71,13 @@ export class PrestadoresService {
       include: {
         legajos: {
           orderBy: { createdAt: "desc" },
-          include: { requisitos: { orderBy: { codigo: "asc" } }, historial: true },
+          include: {
+            requisitos: {
+              orderBy: { codigo: "asc" },
+              include: { documentos: { orderBy: { version: "desc" } } },
+            },
+            historial: true,
+          },
         },
       },
     });

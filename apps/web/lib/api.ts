@@ -36,6 +36,40 @@ export function clearSession() {
   localStorage.removeItem(USER_KEY);
 }
 
+/** Sube un archivo (multipart, campo "archivo") con Authorization. */
+export async function apiUpload<T>(path: string, archivo: File): Promise<T> {
+  const fd = new FormData();
+  fd.append("archivo", archivo);
+  const headers: Record<string, string> = {};
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${API}/api${path}`, { method: "POST", body: fd, headers });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    const msg = (body && (body.message as string)) || `Error ${res.status} al subir el archivo`;
+    throw new Error(Array.isArray(msg) ? msg.join(", ") : msg);
+  }
+  return body as T;
+}
+
+/** Descarga un documento autenticado y dispara el guardado en el navegador. */
+export async function apiDownload(path: string, nombre: string): Promise<void> {
+  const headers: Record<string, string> = {};
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${API}/api${path}`, { headers });
+  if (!res.ok) throw new Error(`No se pudo descargar (HTTP ${res.status})`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nombre;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 /** fetch con Authorization y manejo de errores JSON de la API. */
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
