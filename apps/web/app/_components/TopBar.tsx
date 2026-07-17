@@ -27,11 +27,12 @@ export default function TopBar() {
         <nav className="nav">
           <Link href="/#categorias">Categorías</Link>
           <Link href="/#requisitos">Requisitos</Link>
-          <Link href="/#tramite">Trámite</Link>
+          <Link href="/padron">Padrón</Link>
           <Link href="/verificar">Verificar credencial</Link>
           <button className="theme-toggle" onClick={toggleTheme} title="Cambiar tema" aria-label="Cambiar tema">
             ◐
           </button>
+          <Link href="/panel" className="btn">Mi empresa</Link>
         </nav>
       </div>
     </header>

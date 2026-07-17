@@ -20,15 +20,29 @@ export class LegajosController {
 
   @Get(":id")
   @Roles(Rol.EMPRESA, Rol.MESA_ENTRADAS, Rol.ANALISTA, Rol.INSPECTOR, Rol.DIRECTOR, Rol.AUDITOR)
-  obtener(@Param("id") id: string) {
+  async obtener(@Param("id") id: string, @CurrentUser() user: AuthUser) {
+    await this.service.assertAcceso(user, id);
     return this.service.obtener(id);
   }
 
   @Post(":id/transicion")
   @Roles(Rol.EMPRESA, Rol.MESA_ENTRADAS, Rol.ANALISTA, Rol.INSPECTOR, Rol.DIRECTOR)
-  transicionar(@Param("id") id: string, @Body() body: unknown, @CurrentUser() user: AuthUser) {
+  async transicionar(@Param("id") id: string, @Body() body: unknown, @CurrentUser() user: AuthUser) {
+    await this.service.assertAcceso(user, id);
     const dto = transicionLegajoSchema.parse(body);
     return this.service.transicionar(id, dto.hacia as LegajoEstado, user.id, dto.observacion);
+  }
+
+  /** La empresa declara presentado un requisito de su legajo. */
+  @Post(":id/requisitos/:requisitoId/presentar")
+  @Roles(Rol.EMPRESA)
+  async presentarRequisito(
+    @Param("id") id: string,
+    @Param("requisitoId") requisitoId: string,
+    @CurrentUser() user: AuthUser,
+  ) {
+    await this.service.assertAcceso(user, id);
+    return this.service.presentarRequisito(id, requisitoId, user.id);
   }
 
   @Post(":id/observar")

@@ -24,6 +24,13 @@ export class PrestadoresController {
     return this.service.listar();
   }
 
+  // Debe declararse antes de ":id" para que "mi" no sea capturado como id.
+  @Get("mi")
+  @Roles(Rol.EMPRESA)
+  mi(@CurrentUser() user: AuthUser) {
+    return this.service.miPrestador(user.id);
+  }
+
   @Get(":id")
   @Roles(Rol.EMPRESA, Rol.MESA_ENTRADAS, Rol.ANALISTA, Rol.INSPECTOR, Rol.DIRECTOR, Rol.AUDITOR)
   obtener(@Param("id") id: string) {
