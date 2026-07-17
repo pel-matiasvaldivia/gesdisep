@@ -40,6 +40,8 @@ COPY --from=build /app/packages/shared/package.json ./packages/shared/package.js
 COPY --from=build /app/apps/api/dist ./apps/api/dist
 COPY --from=build /app/apps/api/package.json ./apps/api/package.json
 COPY --from=build /app/apps/api/prisma ./apps/api/prisma
+# tsconfig para que ts-node pueda ejecutar el seed (SEED_ON_START=true).
+COPY --from=build /app/apps/api/tsconfig.json ./apps/api/tsconfig.json
 COPY apps/api/docker-entrypoint.sh ./apps/api/docker-entrypoint.sh
 RUN chmod +x ./apps/api/docker-entrypoint.sh
 WORKDIR /app/apps/api
