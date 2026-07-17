@@ -31,9 +31,9 @@ services:
     networks: [internal]
 
   api:
-    # El tag por defecto es el de la rama de desarrollo actual (CI etiqueta con
-    # el nombre de la rama, con "/" -> "-"). Al mergear a main, cambiar a :main.
-    image: ${API_IMAGE:-ghcr.io/pel-matiasvaldivia/gesdisep-api:claude-mendoza-security-registry-aumhk9}
+    # Tag :main = último build de la rama principal. Para fijar una versión
+    # exacta usá el tag sha-xxxxxxx desde el .env (API_IMAGE/WEB_IMAGE).
+    image: ${API_IMAGE:-ghcr.io/pel-matiasvaldivia/gesdisep-api:main}
     restart: unless-stopped
     depends_on:
       db:
@@ -57,7 +57,7 @@ services:
     # Sin 'ports': la API no se expone al host; solo la alcanza la web.
 
   web:
-    image: ${WEB_IMAGE:-ghcr.io/pel-matiasvaldivia/gesdisep-web:claude-mendoza-security-registry-aumhk9}
+    image: ${WEB_IMAGE:-ghcr.io/pel-matiasvaldivia/gesdisep-web:main}
     restart: unless-stopped
     depends_on: [api]
     # El proxy /api -> http://api:3001 va horneado en la imagen (Next evalúa los
