@@ -40,6 +40,68 @@ export const TIPO_PRESTADOR: Record<string, string> = {
   TECNOLOGICA: "Seguridad Tecnológica",
 };
 
+/** Roles con acceso a la bandeja interna de la Dirección. */
+export const ROLES_INTERNOS = [
+  "ADMIN",
+  "MESA_ENTRADAS",
+  "ANALISTA",
+  "INSPECTOR",
+  "DIRECTOR",
+  "AUDITOR",
+  "MINISTRO",
+];
+
+export function esUsuarioInterno(roles: string[] | undefined | null): boolean {
+  return (roles ?? []).some((r) => ROLES_INTERNOS.includes(r));
+}
+
+export interface AccionBandeja {
+  hacia: string;
+  label: string;
+  /** Decisión final: el botón solo se muestra a DIRECTOR/ADMIN (la API también lo exige). */
+  soloDirector?: boolean;
+  /** Estilo del botón: avance normal, resolución favorable o desfavorable. */
+  tono?: "ok" | "peligro";
+}
+
+/** Transiciones que la bandeja ofrece en cada estado (espejo de la máquina de estados). */
+export const ACCIONES_BANDEJA: Record<string, AccionBandeja[]> = {
+  PRESENTADA: [{ hacia: "EN_REVISION_DOCUMENTAL", label: "Tomar en revisión documental →" }],
+  EN_REVISION_DOCUMENTAL: [
+    { hacia: "VERIFICACION_EXTERNA", label: "Pasar a verificación con organismos →" },
+  ],
+  VERIFICACION_EXTERNA: [
+    { hacia: "INSPECCION", label: "Enviar a inspección →" },
+    { hacia: "EN_APROBACION", label: "Elevar a aprobación →" },
+  ],
+  INSPECCION: [{ hacia: "EN_APROBACION", label: "Elevar a aprobación →" }],
+  EN_APROBACION: [
+    { hacia: "HABILITADA", label: "✔ Habilitar (emite resolución)", soloDirector: true, tono: "ok" },
+    { hacia: "RECHAZADA", label: "✖ Rechazar", soloDirector: true, tono: "peligro" },
+  ],
+  HABILITADA: [
+    { hacia: "SUSPENDIDA", label: "Suspender", soloDirector: true, tono: "peligro" },
+    { hacia: "INHAB_TEMPORAL", label: "Inhabilitación temporal", soloDirector: true, tono: "peligro" },
+    { hacia: "INHAB_DEFINITIVA", label: "Inhabilitación definitiva", soloDirector: true, tono: "peligro" },
+    { hacia: "BAJA", label: "Dar de baja", soloDirector: true, tono: "peligro" },
+  ],
+  SUSPENDIDA: [
+    { hacia: "HABILITADA", label: "Rehabilitar", soloDirector: true, tono: "ok" },
+    { hacia: "INHAB_DEFINITIVA", label: "Inhabilitación definitiva", soloDirector: true, tono: "peligro" },
+  ],
+  INHAB_TEMPORAL: [
+    { hacia: "HABILITADA", label: "Rehabilitar", soloDirector: true, tono: "ok" },
+    { hacia: "INHAB_DEFINITIVA", label: "Inhabilitación definitiva", soloDirector: true, tono: "peligro" },
+  ],
+};
+
+/** Estados en los que el analista/inspector puede observar requisitos. */
+export const ESTADOS_OBSERVABLES = [
+  "EN_REVISION_DOCUMENTAL",
+  "VERIFICACION_EXTERNA",
+  "INSPECCION",
+];
+
 export const GRUPOS_PADRON: { valor: string; label: string }[] = [
   { valor: "todas", label: "Todas" },
   { valor: "habilitada", label: "Habilitadas" },

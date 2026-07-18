@@ -36,6 +36,50 @@ export class LegajosService {
     }
   }
 
+  /**
+   * Restringe qué transiciones puede pedir cada rol:
+   *  - EMPRESA: solo presentar, enviar subsanación o reiniciar tras un rechazo.
+   *  - Decisiones finales (habilitar, rechazar, suspender, inhabilitar, baja):
+   *    exclusivas de la Dirección (Art. 26 Ley 9578). ADMIN queda exceptuado.
+   */
+  async assertTransicionPermitida(user: AuthUser, legajoId: string, hacia: LegajoEstado) {
+    if (user.roles.includes(Rol.ADMIN)) return;
+
+    const soloEmpresa = user.roles.every(
+      (r) => r === Rol.EMPRESA || r === Rol.PERSONAL,
+    );
+    if (soloEmpresa) {
+      const legajo = await this.prisma.legajo.findUnique({ where: { id: legajoId } });
+      if (!legajo) throw new NotFoundException("Legajo no encontrado");
+      const permitidas: [LegajoEstado, LegajoEstado][] = [
+        [LegajoEstado.BORRADOR, LegajoEstado.PRESENTADA],
+        [LegajoEstado.OBSERVADA, LegajoEstado.EN_REVISION_DOCUMENTAL],
+        [LegajoEstado.RECHAZADA, LegajoEstado.BORRADOR],
+      ];
+      const ok = permitidas.some(([d, h]) => d === legajo.estado && h === hacia);
+      if (!ok) {
+        throw new ForbiddenException(
+          "Esa transición está reservada a la Dirección de Seguridad Privada",
+        );
+      }
+      return;
+    }
+
+    const decisionesDireccion: LegajoEstado[] = [
+      LegajoEstado.HABILITADA,
+      LegajoEstado.RECHAZADA,
+      LegajoEstado.SUSPENDIDA,
+      LegajoEstado.INHAB_TEMPORAL,
+      LegajoEstado.INHAB_DEFINITIVA,
+      LegajoEstado.BAJA,
+    ];
+    if (decisionesDireccion.includes(hacia) && !user.roles.includes(Rol.DIRECTOR)) {
+      throw new ForbiddenException(
+        "Solo la Dirección puede resolver habilitaciones, rechazos y sanciones",
+      );
+    }
+  }
+
   async obtener(id: string) {
     const legajo = await this.prisma.legajo.findUnique({
       where: { id },

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import TopBar from "../_components/TopBar";
 import Footer from "../_components/Footer";
 import { apiFetch, setSession, SessionUser } from "../../lib/api";
+import { esUsuarioInterno } from "../../lib/estados";
 
 export default function Ingresar() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function Ingresar() {
         body: JSON.stringify(form),
       });
       setSession(r.accessToken, r.user);
-      router.push("/panel");
+      router.push(esUsuarioInterno(r.user.roles) ? "/bandeja" : "/panel");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Credenciales inválidas");
     } finally {

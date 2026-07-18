@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import TopBar from "../_components/TopBar";
 import Footer from "../_components/Footer";
 import { apiDownload, apiFetch, apiUpload, clearSession, getToken, getUser, SessionUser } from "../../lib/api";
-import { ESTADO_LEGAJO, ESTADO_REQUISITO, PASOS_TRAMITE, TIPO_PRESTADOR } from "../../lib/estados";
+import { ESTADO_LEGAJO, ESTADO_REQUISITO, PASOS_TRAMITE, TIPO_PRESTADOR, esUsuarioInterno } from "../../lib/estados";
 
 interface Documento {
   id: string;
@@ -65,6 +65,11 @@ export default function Panel() {
   useEffect(() => {
     const u = getToken() ? getUser() : null;
     setUser(u);
+    // Los usuarios internos trabajan en la bandeja, no en el panel de empresa.
+    if (u && esUsuarioInterno(u.roles)) {
+      window.location.replace("/bandeja");
+      return;
+    }
     if (u) void cargar();
   }, [cargar]);
 

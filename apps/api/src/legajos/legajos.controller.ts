@@ -30,6 +30,7 @@ export class LegajosController {
   async transicionar(@Param("id") id: string, @Body() body: unknown, @CurrentUser() user: AuthUser) {
     await this.service.assertAcceso(user, id);
     const dto = transicionLegajoSchema.parse(body);
+    await this.service.assertTransicionPermitida(user, id, dto.hacia as LegajoEstado);
     return this.service.transicionar(id, dto.hacia as LegajoEstado, user.id, dto.observacion);
   }
 
